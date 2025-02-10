@@ -1,10 +1,10 @@
 name: Deploy App
 
 on:
-  push: 
+  workflow_dispatch:
+  push:
     branches:
       - main
-
 
 permissions:
   id-token: write
@@ -34,30 +34,25 @@ jobs:
           zip -r ../lambda.zip .
           cd ..
 
-      - name: Check if Lambda Function Exists
-        id: check_lambda
-        continue-on-error: true
+      - name: Wait for Lambda to be Ready
         run: |
-          aws lambda get-function --function-name hello-world-${{ github.ref_name == 'main' && 'prod' || 'dev' }} > /dev/null 2>&1
-          echo "LAMBDA_EXISTS=$?" >> $GITHUB_ENV
+          FUNCTION_NAME="hello-world-${{ github.ref_name == 'main' && 'prod' || 'dev' }}"
+          for i in {1..10}; do
+            if aws lambda get-function --function-name $FUNCTION_NAME --region ap-south-1; then
+              echo "Lambda function exists."
+              exit 0
+            fi
+            echo "Waiting for Lambda to be created..."
+            sleep 10
+          done
+          echo "ERROR: Lambda function $FUNCTION_NAME not found!"
+          exit 1
 
-      - name: Create Lambda Function (If Not Exists)
-        if: env.LAMBDA_EXISTS == '255'  # 255 means function not found
+      - name: Update Lambda Function
         run: |
-          aws lambda create-function \
-            --function-name hello-world-${{ github.ref_name == 'main' && 'prod' || 'dev' }} \
-            --runtime nodejs18.x \
-            --role ${{ secrets.AWS_ROLE_ARN }} \
-            --handler index.handler \
-            --zip-file fileb://lambda.zip \
-            --timeout 10 \
-            --memory-size 128 \
-            --region ap-south-1
-
-      - name: Update Lambda Function (If Exists)
-        if: env.LAMBDA_EXISTS == '0'  # 0 means function exists
-        run: |
+          FUNCTION_NAME="hello-world-${{ github.ref_name == 'main' && 'prod' || 'dev' }}"
           aws lambda update-function-code \
-            --function-name hello-world-${{ github.ref_name == 'main' && 'prod' || 'dev' }} \
+            --function-name $FUNCTION_NAME \
             --zip-file fileb://lambda.zip \
             --region ap-south-1
+
