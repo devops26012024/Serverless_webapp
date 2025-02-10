@@ -14,6 +14,7 @@ app.listen(port, () => {
 
 */
 
+/*
 #require("dotenv").config();
 const express = require("express");
 const serverless = require("@vendia/serverless-express"); // Use this package for Lambda compatibility
@@ -28,3 +29,20 @@ app.get("/", (req, res) => {
 
 // Export the app as a Lambda handler
 module.exports.handler = serverless(app);
+*/
+
+const dotenv = require("dotenv");
+dotenv.config();
+
+const express = require("express");
+const serverless = require("@vendia/serverless-express");
+
+const app = express();
+
+app.get("/", (req, res) => {
+  res.send("Hello, World!");
+});
+
+module.exports.handler = serverless(app);
+
+
