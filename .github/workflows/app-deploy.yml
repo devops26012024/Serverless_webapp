@@ -21,7 +21,6 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          role-session-name: GitHubOIDCSession
           aws-region: ap-south-1
 
       - name: Install Dependencies
