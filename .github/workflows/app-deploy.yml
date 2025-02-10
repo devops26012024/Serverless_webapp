@@ -1,6 +1,6 @@
 name: Deploy App
 
-on:
+on: 
   workflow_dispatch:
   push:
     branches:
