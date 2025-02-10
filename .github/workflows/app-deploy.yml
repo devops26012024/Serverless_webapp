@@ -17,6 +17,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Configure AWS OIDC authentication
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: GitHubOIDCSession
+          aws-region: ap-south-1
+
       - name: Install Dependencies
         run: |
           cd app
@@ -32,4 +39,5 @@ jobs:
         run: |
           aws lambda update-function-code \
             --function-name hello-world-${{ github.ref_name == 'main' && 'prod' || 'dev' }} \
-            --zip-file fileb://lambda.zip
+            --zip-file fileb://lambda.zip \
+            --region ap-south-1
