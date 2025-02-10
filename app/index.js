@@ -31,6 +31,7 @@ app.get("/", (req, res) => {
 module.exports.handler = serverless(app);
 */
 
+/*
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -41,6 +42,19 @@ const app = express();
 
 app.get("/", (req, res) => {
   res.send("Hello, World!");
+});
+
+module.exports.handler = serverless(app);
+*/
+
+const serverless = require("@vendia/serverless-express");
+const express = require("express");
+
+const app = express();
+
+// Define a simple route
+app.get("/", (req, res) => {
+  res.json({ message: "Hello, World!" });
 });
 
 module.exports.handler = serverless(app);
