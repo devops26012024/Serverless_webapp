@@ -4,7 +4,7 @@ on:
   push: 
     branches:
       - main
-      - dev
+
 
 permissions:
   id-token: write
@@ -34,7 +34,28 @@ jobs:
           zip -r ../lambda.zip .
           cd ..
 
-      - name: Update Lambda Function
+      - name: Check if Lambda Function Exists
+        id: check_lambda
+        continue-on-error: true
+        run: |
+          aws lambda get-function --function-name hello-world-${{ github.ref_name == 'main' && 'prod' || 'dev' }} > /dev/null 2>&1
+          echo "LAMBDA_EXISTS=$?" >> $GITHUB_ENV
+
+      - name: Create Lambda Function (If Not Exists)
+        if: env.LAMBDA_EXISTS == '255'  # 255 means function not found
+        run: |
+          aws lambda create-function \
+            --function-name hello-world-${{ github.ref_name == 'main' && 'prod' || 'dev' }} \
+            --runtime nodejs18.x \
+            --role ${{ secrets.AWS_ROLE_ARN }} \
+            --handler index.handler \
+            --zip-file fileb://lambda.zip \
+            --timeout 10 \
+            --memory-size 128 \
+            --region ap-south-1
+
+      - name: Update Lambda Function (If Exists)
+        if: env.LAMBDA_EXISTS == '0'  # 0 means function exists
         run: |
           aws lambda update-function-code \
             --function-name hello-world-${{ github.ref_name == 'main' && 'prod' || 'dev' }} \
