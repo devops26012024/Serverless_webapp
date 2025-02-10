@@ -26,7 +26,8 @@ jobs:
       - name: Install Dependencies
         run: |
           cd app
-          npm install
+          /* npm install */
+          rm -rf node_modules && npm install
 
       - name: Zip Lambda Function
         run: |
