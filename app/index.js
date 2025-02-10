@@ -14,7 +14,7 @@ app.listen(port, () => {
 
 */
 
-require("dotenv").config();
+#require("dotenv").config();
 const express = require("express");
 const serverless = require("@vendia/serverless-express"); // Use this package for Lambda compatibility
 
