@@ -47,6 +47,7 @@ app.get("/", (req, res) => {
 module.exports.handler = serverless(app);
 */
 
+/*
 const serverless = require("@vendia/serverless-express");
 const express = require("express");
 
@@ -59,4 +60,25 @@ app.get("/", (req, res) => {
 
 module.exports.handler = serverless(app);
 
+*/
+
+
+const serverless = require("@vendia/serverless-express");
+const express = require("express");
+
+const app = express();
+app.use(express.json()); // Middleware to parse JSON request bodies
+
+// GET request
+app.get("/", (req, res) => {
+  res.json({ message: "Hello, World! (GET request)" });
+});
+
+// POST request
+app.post("/", (req, res) => {
+  res.json({ message: "Hello, World! (POST request)", data: req.body });
+});
+
+// Export the app for AWS Lambda
+module.exports.handler = serverless(app);
 
